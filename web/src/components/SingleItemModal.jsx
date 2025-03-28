@@ -13,6 +13,7 @@ function SingleItemModal({ card, closeModal, onDelete }) {
     closeModal();  // Close the modal after deleting the card
   };
 
+
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96 max-w-md space-y-4">

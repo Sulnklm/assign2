@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
-import SingleItemModal from "./SingleItemModal"; // Import SingleItemModal component
-
+import SingleItemModal from "./SingleItemModal";
+import EditItemModal from "./EditItemModal";
 function AllItems({ cards, handleDelete }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [filteredCards, setFilteredCards] = useState(cards);
-  const [filterCategory, setFilterCategory] = useState("");  // State for category filter
-  const [filterRating, setFilterRating] = useState(""); // State for rating filter
+  const [filterCategory, setFilterCategory] = useState("");  
+  const [filterRating, setFilterRating] = useState(""); 
 
   // Filter the card list based on the selected filters
   useEffect(() => {
@@ -38,9 +39,21 @@ function AllItems({ cards, handleDelete }) {
     setSelectedCard(null); // Reset selected card when closing the modal
   };
 
+  // Open Edit modal
+  const openEditModal = (card) => {
+    setSelectedCard(card);
+    setIsEditModalOpen(true);
+  };
+
+  // Close the Edit modal
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedCard(null); // Reset selected card when closing the modal
+  };
+
   return (
     <div className="container mx-auto">
-      {/* Layout for filters */}
+      {/* Filters */}
       <div className="flex justify-end items-center mb-6">
         <div className="flex gap-4">
           {/* Category filter */}
@@ -81,6 +94,7 @@ function AllItems({ cards, handleDelete }) {
               card={card}
               onDelete={() => handleDelete(card.id)}
               onClick={() => openModal(card)} // Open modal when a card is clicked
+              onEdit={() => openEditModal(card)} // Open edit modal when edit button is clicked
             />
           ))
         )}
@@ -92,6 +106,15 @@ function AllItems({ cards, handleDelete }) {
           card={selectedCard}
           closeModal={closeModal}
           onDelete={handleDelete} // Pass handleDelete to SingleItemModal
+        />
+      )}
+
+      {/* Render the Edit modal */}
+      {isEditModalOpen && (
+        <EditItemModal
+          card={selectedCard}
+          closeModal={closeEditModal}
+          refreshCards={() => {}}
         />
       )}
     </div>

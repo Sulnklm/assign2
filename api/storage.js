@@ -2,7 +2,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure the uploads directory exists
 const uploadDir = 'public/uploads';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -23,7 +22,7 @@ const storageSettings = multer.diskStorage({
 const upload = multer({
   storage: storageSettings,
   fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // Optional: set a size limit (5MB in this example)
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB file size limit
 });
 
 module.exports = upload;

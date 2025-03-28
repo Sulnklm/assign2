@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('./db');  // MySQL 데이터베이스 연결
+const db = require('./db');  
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
@@ -13,7 +13,7 @@ app.use(express.static('public'));
 
 // Multer configuration for file uploads
 const upload = multer({
-  dest: 'public/uploads/', // 업로드할 경로 설정
+  dest: 'public/uploads/', 
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -39,13 +39,13 @@ app.get('/api/travel-cards', (req, res) => {
     if (err) {
       return res.status(500).send('Error fetching travel cards');
     }
-    res.status(200).json(result); // 카테고리 이름과 함께 카드 데이터를 반환
+    res.status(200).json(result); 
   });
 });
 
 // GET request to fetch all categories
 app.get('/api/categories', (req, res) => {
-  const query = 'SELECT * FROM categories';  // Example query to get all categories
+  const query = 'SELECT * FROM categories';  
   db.query(query, (err, result) => {
     if (err) {
       return res.status(500).send('Error fetching categories');
@@ -53,6 +53,32 @@ app.get('/api/categories', (req, res) => {
     res.status(200).json(result);  // Send categories data as JSON response
   });
 });
+
+// GET request to fetch a travel card by id
+app.get('/api/travel-cards/:id', (req, res) => {
+  const { id } = req.params; // Get the card ID from the URL parameter
+
+  const query = `
+    SELECT travel_cards.*, categories.category_name
+    FROM travel_cards
+    INNER JOIN categories ON travel_cards.category_id = categories.id
+    WHERE travel_cards.id = ?
+  `;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error fetching travel card:', err);
+      return res.status(500).send('Error fetching travel card');
+    }
+
+    if (result.length === 0) {
+      return res.status(404).send('Travel card not found');
+    }
+
+    res.status(200).json(result[0]); // Return the single card
+  });
+});
+
 
 // POST request to add a new travel card
 app.post('/api/travel-cards', upload.single('image'), (req, res) => {
@@ -79,6 +105,52 @@ app.post('/api/travel-cards', upload.single('image'), (req, res) => {
     res.status(201).json({ message: 'Travel card added successfully', id: result.insertId });
   });
 });
+
+app.put('/api/travel-cards/:id', upload.single('image'), (req, res) => {
+  const { id } = req.params;  // id를 가져옴
+  const { title, description, rating, date, category_id } = req.body;
+
+  // id가 문자열로 들어올 수 있기 때문에, 이를 숫자로 변환
+  const numericId = parseInt(id, 10); // id를 숫자로 변환
+
+  let image_url = req.file ? `/uploads/${req.file.filename}` : req.body.image_url;
+
+  if (!image_url) {
+    image_url = req.body.image_url;
+  }
+
+  const query = `
+    UPDATE travel_cards
+    SET title = ?, description = ?, rating = ?, date = ?, category_id = ?, image_url = ?
+    WHERE id = ?
+  `;
+
+  db.query(query, [title, description, rating, date, category_id, image_url, numericId], (err, result) => {
+    if (err) {
+      console.error('Error updating travel card:', err);
+      return res.status(500).send('Error updating travel card');
+    }
+
+    const updatedCardQuery = `
+      SELECT travel_cards.*, categories.category_name
+      FROM travel_cards
+      INNER JOIN categories ON travel_cards.category_id = categories.id
+      WHERE travel_cards.id = ?
+    `;
+    
+    db.query(updatedCardQuery, [numericId], (err, result) => {
+      if (err) {
+        console.error('Error fetching updated travel card:', err);
+        return res.status(500).send('Error fetching updated travel card');
+      }
+      res.status(200).json(result[0]);  // Return the updated card
+    });
+  });
+});
+
+
+
+
 
 // Route to delete a travel card
 app.delete('/api/travel-cards/:id', (req, res) => {
