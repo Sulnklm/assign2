@@ -2,27 +2,33 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const uploadDir = 'public/uploads';
+const uploadDir = 'public/uploads'; // Define the directory where uploaded files will be stored
+
+// Check if the upload directory exists, if not, create it
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+  fs.mkdirSync(uploadDir, { recursive: true }); // Create the directory, including any missing parent directories
 }
 
+// Set up custom storage settings for multer
 const storageSettings = multer.diskStorage({
+  // Define where to store the uploaded files
   destination: (req, file, callback) => {
-    callback(null, uploadDir);
+    callback(null, uploadDir); // Store files in the 'public/uploads' directory
   },
 
+  // Define the filename for the uploaded files
   filename: (req, file, callback) => {
-    const fileExtension = path.extname(file.originalname);
-    const uniqueFilename = Date.now() + fileExtension;
-    callback(null, uniqueFilename);
+    const fileExtension = path.extname(file.originalname); // Get the file extension from the original file
+    const uniqueFilename = Date.now() + fileExtension; // Generate a unique filename using the current timestamp
+    callback(null, uniqueFilename); // Use the generated unique filename for the uploaded file
   }
 });
 
+// Set up multer to handle file uploads with the custom storage settings
 const upload = multer({
-  storage: storageSettings,
-  fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB file size limit
+  storage: storageSettings, // Use the custom storage settings defined above
+  fileFilter: fileFilter, // Use a custom file filter function (assumed to be defined elsewhere)
+  limits: { fileSize: 5 * 1024 * 1024 } // Limit the file size to 5MB (5 * 1024 * 1024 bytes)
 });
 
-module.exports = upload;
+module.exports = upload; 

@@ -1,43 +1,46 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Button from "./Button"; // Import Button component
+import Button from "./Button"; // Import the Button component for reusable buttons
 
 function AddItemModal({ closeModal, addNewCard, refreshCards }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [rating, setRating] = useState(0); 
-  const [date, setDate] = useState("");
-  const [category_id, setCategoryId] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [image, setImage] = useState(null);
+  const [title, setTitle] = useState(""); // State to store the title input
+  const [description, setDescription] = useState(""); // State to store the description input
+  const [rating, setRating] = useState(0); // State to store the rating (default is 0)
+  const [date, setDate] = useState(""); // State to store the date input
+  const [category_id, setCategoryId] = useState(""); // State to store the selected category ID
+  const [categories, setCategories] = useState([]); // State to store available categories for the dropdown
+  const [image, setImage] = useState(null); // State to store the selected image file
 
-  // Fetch categories from the backend API
+  // Fetch categories from the backend API to populate the dropdown
   useEffect(() => {
     axios
       .get("http://localhost:5001/api/categories")
       .then((response) => {
-        setCategories(response.data); // Set categories for the dropdown
+        setCategories(response.data); // Store the fetched categories in state
       })
       .catch((error) => {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching categories:", error); // Handle any errors from the API request
       });
-  }, []);
+  }, []); // Empty dependency array ensures this runs once when the component is mounted
 
+  // Handle the file change when a user selects a file to upload
   const handleFileChange = (e) => {
-    setImage(e.target.files[0]); // Get the selected file
+    setImage(e.target.files[0]); // Store the selected file in state
   };
 
+  // Handle form submission to create a new travel card
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission behavior
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("rating", rating);
-    formData.append("date", date);
-    formData.append("category_id", category_id);
-    formData.append("image", image); // Add the image file to FormData
+    formData.append("title", title); // Append the title to FormData
+    formData.append("description", description); // Append the description to FormData
+    formData.append("rating", rating); // Append the rating to FormData
+    formData.append("date", date); // Append the date to FormData
+    formData.append("category_id", category_id); // Append the selected category ID to FormData
+    formData.append("image", image); // Append the image file to FormData
 
+    // Send a POST request to the server with the form data
     axios
       .post("http://localhost:5001/api/travel-cards", formData, {
         headers: {
@@ -45,13 +48,13 @@ function AddItemModal({ closeModal, addNewCard, refreshCards }) {
         },
       })
       .then((response) => {
-        console.log("Card added:", response.data); // Log the response
-        addNewCard(response.data); // Add new card to parent component
-        refreshCards(); // Call refreshCards to update the UI after adding a new card
-        closeModal(); // Close the modal after adding
+        console.log("Card added:", response.data); // Log the response from the server
+        addNewCard(response.data); // Call the parent function to add the new card
+        refreshCards(); // Refresh the list of cards in the parent component
+        closeModal(); // Close the modal after successfully adding the card
       })
       .catch((error) => {
-        console.error("Error adding travel card:", error);
+        console.error("Error adding travel card:", error); // Handle any errors from the POST request
       });
   };
 
@@ -66,31 +69,31 @@ function AddItemModal({ closeModal, addNewCard, refreshCards }) {
             type="text"
             placeholder="Title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)} // Update the title state as the user types
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           />
           <textarea
             placeholder="Description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)} // Update the description state as the user types
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           />
           <input
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => setDate(e.target.value)} // Update the date state as the user selects a date
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           />
 
           {/* Rating slider */}
           <div className="mb-4">
             <div className="flex justify-between">
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
-              Rating
-            </label>
-            <div className="text-center text-xl font-semibold text-gray-700">
-              {rating}
-            </div>
+              <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
+                Rating
+              </label>
+              <div className="text-center text-xl font-semibold text-gray-700">
+                {rating} {/* Display the current rating value */}
+              </div>
             </div>
             <input
               id="rating"
@@ -99,26 +102,25 @@ function AddItemModal({ closeModal, addNewCard, refreshCards }) {
               max="5"
               step="0.1"
               value={rating}
-              onChange={(e) => setRating(e.target.value)}
+              onChange={(e) => setRating(e.target.value)} // Update the rating state as the user slides the range input
               className="w-full mb-5"
             />
-            
           </div>
 
           <input
             type="file"
-            onChange={handleFileChange}
+            onChange={handleFileChange} // Call handleFileChange when a file is selected
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           />
           <select
             value={category_id}
-            onChange={(e) => setCategoryId(e.target.value)}
+            onChange={(e) => setCategoryId(e.target.value)} // Update the category state as the user selects a category
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           >
             <option value="">Select Category</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.category_name}
+                {category.category_name} {/* Display categories in the dropdown */}
               </option>
             ))}
           </select>
@@ -129,7 +131,7 @@ function AddItemModal({ closeModal, addNewCard, refreshCards }) {
           />
         </form>
         <Button
-          onClick={closeModal}
+          onClick={closeModal} // Close the modal when clicked
           text="Close"
           className="w-full mt-2 bg-[#282828] hover:bg-[#000000]"
         />
