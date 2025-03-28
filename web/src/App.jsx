@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AllItems from "./components/AllItems";
+import AddItemModal from "./components/AddItemModal";
+import Button from "./components/Button";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cards, setCards] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Fetch travel cards when the component mounts
+  const refreshCards = () => {
+    axios
+      .get("http://localhost:5001/api/travel-cards")
+      .then((response) => {
+        setCards(response.data); // Update state with fetched cards
+      })
+      .catch((error) => {
+        console.error("Error fetching travel cards:", error);
+      });
+  };
+
+  useEffect(() => {
+    refreshCards(); // Fetch cards once when the component mounts
+  }, []);
+
+  // Add a new card to the state
+  const addNewCard = (newCard) => {
+    setCards((prevCards) => [...prevCards, newCard]); // Add new card to the list
+  };
+
+  // Handle card deletion
+  const handleDelete = (cardId) => {
+    axios
+      .delete(`http://localhost:5001/api/travel-cards/${cardId}`)
+      .then(() => {
+        setCards((prevCards) => prevCards.filter((card) => card.id !== cardId)); // Update state after deleting
+      })
+      .catch((error) => {
+        console.error("Error deleting card:", error);
+      });
+  };
+
+  // Modal open/close
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container mx-auto p-5">
+      <div className="flex flex-wrap justify-end md:justify-between items-center mb-5">
+        <h1>My Travel Card Collection</h1>
+        <Button
+          className="bg-[#F55848] hover:bg-[#EF4432]"
+          text="Add Item"
+          onClick={openModal}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      {isModalOpen && (
+        <AddItemModal closeModal={closeModal} addNewCard={addNewCard} />
+      )}
+      {/* Pass cards state and handleDelete function to AllItems */}
+      <AllItems cards={cards} handleDelete={handleDelete} />
+    </div>
+  );
 }
 
-export default App
+export default App;
