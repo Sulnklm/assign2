@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Card from "./Card";
+import SingleItemModal from "./SingleItemModal"; // Import SingleItemModal component
 
 function AllItems({ cards, handleDelete }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
   const [filteredCards, setFilteredCards] = useState(cards);
   const [filterCategory, setFilterCategory] = useState("");  // State for category filter
   const [filterRating, setFilterRating] = useState(""); // State for rating filter
@@ -23,6 +25,18 @@ function AllItems({ cards, handleDelete }) {
 
     setFilteredCards(filtered);  // Update the state with the filtered cards
   }, [cards, filterCategory, filterRating]);
+
+  // Open modal and set the selected card
+  const openModal = (card) => {
+    setSelectedCard(card);
+    setIsModalOpen(true);
+  };
+
+  // Close the modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCard(null); // Reset selected card when closing the modal
+  };
 
   return (
     <div className="container mx-auto">
@@ -62,10 +76,24 @@ function AllItems({ cards, handleDelete }) {
           <div className="col-span-full text-center text-gray-500">No cards available</div>
         ) : (
           filteredCards.map((card) => (
-            <Card key={card.id} card={card} onDelete={() => handleDelete(card.id)} />
+            <Card
+              key={card.id}
+              card={card}
+              onDelete={() => handleDelete(card.id)}
+              onClick={() => openModal(card)} // Open modal when a card is clicked
+            />
           ))
         )}
       </div>
+
+      {/* Render the SingleItemModal when a card is selected */}
+      {isModalOpen && (
+        <SingleItemModal
+          card={selectedCard}
+          closeModal={closeModal}
+          onDelete={handleDelete} // Pass handleDelete to SingleItemModal
+        />
+      )}
     </div>
   );
 }

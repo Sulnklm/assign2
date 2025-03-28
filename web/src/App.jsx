@@ -47,18 +47,21 @@ function App() {
 
   return (
     <div className="container mx-auto p-5">
-      <div className="flex flex-wrap justify-end md:justify-between items-center mb-5">
-        <h1>My Travel Card Collection</h1>
-        <Button
-          className="bg-[#F55848] hover:bg-[#EF4432]"
-          text="Add Item"
-          onClick={openModal}
-        />
+      <div className="flex justify-between items-center mb-5">
+      <h1>My Travel Card</h1>
+      <Button
+        className="bg-[#F55848] hover:bg-[#EF4432] translate-y-3"
+        text="Add Item +"
+        onClick={openModal}
+      />
       </div>
       {isModalOpen && (
-        <AddItemModal closeModal={closeModal} addNewCard={addNewCard} />
+        <AddItemModal
+          closeModal={closeModal}
+          addNewCard={addNewCard}
+          refreshCards={refreshCards} // Pass refreshCards as a prop
+        />
       )}
-      {/* Pass cards state and handleDelete function to AllItems */}
       <AllItems cards={cards} handleDelete={handleDelete} />
     </div>
   );

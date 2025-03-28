@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios"; // axios import 추가
 
-function Card({ card, onDelete }) {
+function Card({ card, onClick, onDelete }) {
   // ISO 날짜를 사용자 친화적인 형식으로 변환
   const formattedDate = new Date(card.date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -23,7 +23,7 @@ function Card({ card, onDelete }) {
   };
 
   return (
-    <div className="rounded-3xl overflow-hidden">
+    <div className="rounded-3xl overflow-hidden" onClick={onClick} >
       {/* 카드 이미지 */}
       <img
         className="relative -z-20 w-full h-96 object-cover"
@@ -38,26 +38,16 @@ function Card({ card, onDelete }) {
           alt={card.title}
         />
         <div className="-translate-y-5">
-          {/* 카드 제목, 설명, 등급, 카테고리, 날짜 */}
-          <h3>{card.title}</h3>
-          <p>{card.description}</p>
+          <h3 className="text-white">{card.title}</h3>
+          <p className="text-white">{card.description}</p>
           <div className="flex gap-3 py-3">
             <div className="bg-white/20 backdrop-blur-lg w-fit px-3 py-1.5 rounded-full">
-              <p className="font-[450]">★ {card.rating} </p>
+              <p className="font-[450] text-white">★ {card.rating} </p>
             </div>
             <div className="bg-white/20 backdrop-blur-lg w-fit px-3 py-1.5 rounded-full">
-              <p>{card.category_name}</p>
+              <p className="text-white">{card.category_name}</p>
             </div>
           </div>
-          <p>{formattedDate}</p> {/* 변환된 날짜 출력 */}
-          
-          {/* 삭제 버튼 */}
-          <button
-            onClick={handleDelete}
-            className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded mt-3"
-          >
-            Delete
-          </button>
         </div>
       </div>
     </div>
