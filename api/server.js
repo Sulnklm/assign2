@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 const express = require('express');
 const db = require('./db');  
 const cors = require('cors');
@@ -5,6 +12,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const app = express();
+const usersRouter  = require("./routers/usersRouter");
 
 // Middleware
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS) for allowing requests from other domains
@@ -169,3 +177,4 @@ const PORT = process.env.PORT || 5001; // Set the port number, using the environ
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`); // Log a message when the server starts
 });
+app.use("/users", usersRouter);
